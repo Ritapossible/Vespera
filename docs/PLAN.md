@@ -39,8 +39,8 @@ purchases go through scripts / the agent / a block explorer. (Decision D16.)
 
 ### Sun 11-22 — backend
 - [ ] **Needs user:** a funded Base Sepolia deployer key (see README → Deploy).
-- [ ] Randomized invariant tests (vault solvency, payout ≤ maxPayout, exact reconciliation).
-- [ ] Keeper (`contracts/scripts/keeper.ts`): record reference/settlement, void, redeem — with tests.
+- [x] Randomized invariant tests (vault solvency, payout ≤ maxPayout, exact reconciliation) — 300 seeds pass.
+- [x] Keeper (`contracts/scripts/keeper.ts`): record reference/settlement, void, redeem — 4 tests.
 - [ ] Freeze `SETTLEMENT_RULES.md` v1. Post #2: settlement rules + first dataset findings.
 
 ### Mon 11-23 — backend

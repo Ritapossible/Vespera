@@ -65,12 +65,13 @@ One sentence (do not drift from it):
 ## Commands
 
 ```
-cd contracts && npm i --legacy-peer-deps && npx hardhat test       # 26 tests
+cd contracts && npm i --legacy-peer-deps && npx hardhat test       # 60 tests (INVARIANT_SEEDS=300 for deep run)
 cd packages/pricing && npm i && npx tsx src/gaps.ts                # refresh dataset (public RPC, ~5 min)
 npx tsx src/ratecard.ts                                            # data/ratecard.json
 cd contracts && npx hardhat run scripts/deploy.ts --network baseSepolia
 FRIDAY=2026-11-27 CUTOFF_ET=11:00 npx hardhat run scripts/epoch.ts --network baseSepolia
 npx hardhat run scripts/mirror.ts --network baseSepolia            # schedule every few minutes
+LOOP_SECONDS=120 npx hardhat run scripts/keeper.ts --network baseSepolia   # DRY_RUN=1 to preview
 ```
 
 ## Layout
@@ -89,8 +90,11 @@ docs/               plan, architecture, rules, pricing, decisions, verify list
 
 - 2026-11-21: Critical facts verified. Contracts + 26 tests green. Dataset (150 weekends) and
   rate card generated from mainnet feeds. Deploy/epoch/mirror scripts work on a local node.
-- **Next:** deploy to Base Sepolia (needs a funded deployer key from the user), create the
-  Thanksgiving epoch, run the mirror, then `apps/web`.
+- 2026-11-21 (later): Invariant tests (300 seeds) and keeper done. **Backend-first rule (D16):**
+  no web app until replay, backtest and agent backend are done and tested.
+- **Next:** replay harness + scan mode, CLI buy script, backtest, agent backend. Deploy to Base
+  Sepolia as soon as the user provides a funded testnet deployer key.
+- Commits are authored as Rita (GitHub no-reply address); no AI co-author trailers in this repo.
 - Watch: Thanksgiving feed behaviour (VERIFY.md). Pitch copy must say "reopen (Sun 8pm ET)",
   not "Monday open".
 - Finding to use honestly: mega-cap weekend gaps were tiny in the sample; lead with MSTR/NVDA.
@@ -100,4 +104,5 @@ docs/               plan, architecture, rules, pricing, decisions, verify list
 | Date | What happened |
 | --- | --- |
 | 2026-11-21 | Idea refined (spread, settlement rules, replay demo, Bankr mandate). Application submitted (Programmable Stock Markets, Bankr). Repo scaffolded with docs. |
+| 2026-11-21 | Invariant tests + keeper; plan reordered backend-first; history rewritten so Rita is sole author. |
 | 2026-11-21 | Verified feeds/B20/Aave V4/Bankr. Found feed schedule on-chain (D9). Built contracts (market, vault, adapter, mandates) + 26 tests; gaps + rate-card pipeline; deploy/epoch/mirror scripts. |
