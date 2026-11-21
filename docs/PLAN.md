@@ -13,11 +13,12 @@ Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27). The f
 | M0 | Facts verified | `docs/VERIFY.md` §Critical all resolved or worked around | ✅ Sat 11-21 |
 | M1 | Dataset + rate card | Gap CSV with provenance; rate card generated | ✅ Sat 11-21 (10 stocks × 15 weekends) |
 | M2 | Core contracts | Vault, Market, positions, adapter, settle/void, mandates — tests green | ✅ Sat 11-21 (26 tests) |
-| M3 | Sepolia live | Deployed, verified, buy flow in web app, first purchase | **Wed 11-25** |
+| M3 | Backend complete | Invariants, keeper, replay, backtest, agent backend — all tested | Tue 11-24 |
+| M3b | Sepolia live | Deployed, verified, first purchase via script/agent | **Wed 11-25** |
 | M4 | Live weekend | Positions open over Thanksgiving; settled Mon 11-30 | Mon 11-30 |
 | M5 | Replay harness | Fork + mock feed + time warp; scan mode; above/below strike reproducible | Mon 11-30 |
 | M6 | Agent | Mandate contract + Bankr flow + no-numbers guardrail test | Wed 12-02 |
-| M7 | Evidence | Backtest published, health-factor panel, edge-case demos | Thu 12-03 |
+| M7 | Web app + evidence | Web app on finished backend, backtest published, edge-case demos | Thu 12-03 |
 | M8 | Submission | Video, README, posts, submit | Thu 12-04 (Fri buffer) |
 
 ## Day by day
@@ -32,45 +33,49 @@ Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27). The f
 - [ ] Choose launch stocks — proposal: TSLA, NVDA, MSTR (deploy config).
 - [ ] Post #1: problem thread.
 
-### Sun 11-22
-- [ ] **Needs user:** a funded Base Sepolia deployer key (see README → Deploy).
-- [ ] Deploy to Base Sepolia; verify contracts; seed vaults; create Thanksgiving epoch.
-- [ ] Freeze `SETTLEMENT_RULES.md` v1. Post #2: settlement rules + first dataset findings.
-- [ ] Invariant/fuzz tests (`locked ≤ assets`, payout ≤ maxPayout) and a few more edge tests.
+**Rule: backend first.** The web app is built only on a complete backend: contracts hardened,
+keeper, replay, backtest and agent backend all working and tested from scripts. Until then,
+purchases go through scripts / the agent / a block explorer. (Decision D16.)
 
-### Mon 11-23 / Tue 11-24
-- [ ] `apps/web` (pulled forward): quote card, buy, positions, vault deposit.
-- [ ] Mirror running on a schedule; keeper script for record/settle/redeem.
+### Sun 11-22 — backend
+- [ ] **Needs user:** a funded Base Sepolia deployer key (see README → Deploy).
+- [ ] Randomized invariant tests (vault solvency, payout ≤ maxPayout, exact reconciliation).
+- [ ] Keeper (`contracts/scripts/keeper.ts`): record reference/settlement, void, redeem — with tests.
+- [ ] Freeze `SETTLEMENT_RULES.md` v1. Post #2: settlement rules + first dataset findings.
+
+### Mon 11-23 — backend
+- [ ] `packages/replay`: fork + mock feed fed with real historical rounds, time warp, settle.
+- [ ] Scan mode: pick the big-gap and calm weekends by rule from `data/weekend-gaps.csv`.
+- [ ] CLI purchase script (`buy.ts`) so testers can buy without a UI.
+
+### Tue 11-24 — backend
+- [ ] Backtest (leave-one-out) over every weekend; tune load / floor / sigma floor.
+- [ ] Agent backend (`apps/agent`): deterministic quote engine with IDs, mandate signing,
+      no-numbers guardrail + test, Bankr `/agent/submit` adapter (dry-run until key).
 
 ### Wed 11-25 — **Sepolia deadline**
-- [ ] Deploy + verify on Base Sepolia. Seed vaults with test USDC.
-- [ ] `apps/web`: connect, quote card (premium, max payout, collateral, hit-rate, feed
-      address, "can't guarantee" list), buy, my positions.
-- [ ] First purchases (self + testers). Post #3: first purchase.
+- [ ] Deploy + verify on Base Sepolia. Seed vaults. Create Thanksgiving epoch. Start mirror + keeper.
+- [ ] First purchases via script / agent. Post #3: live on Sepolia.
 
 ### Thu 11-26 / Fri 11-27 (holiday)
-- [ ] Recruit 2–3 real stock-collateral borrowers / Base builders to buy before cutoff.
-- [ ] `packages/replay`: anvil fork of Base, mock feed from dataset, time warp.
+- [ ] Recruit 2–3 real stock-collateral borrowers / Base builders to buy before the Fri cutoff.
+- [ ] Backend gaps found by first users; edge-case scripts (paused feed → void, multiplier change).
 
 ### Sat 11-28 / Sun 11-29
-- [ ] Replay scan mode: find one big-gap weekend and one calm weekend; script both.
-- [ ] Health-factor panel (read Aave position; show Aave HF and "protected HF (estimate)").
+- [ ] Backend frozen. **Start `apps/web`**: quote card (premium, max payout, collateral, hit
+      rate, feed address, "can't guarantee"), buy, positions, vault deposit.
 
 ### Sun 11-29 evening ET / Mon 11-30 01:00 UTC
-- [ ] **Live settlement** right after the feed resumes. Screen-record. Post #4.
+- [ ] **Live settlement** by the keeper right after the feed resumes. Screen-record. Post #4.
 
 ### Tue 12-01
-- [x] Mandates + `buyFor` (done early, in the market contract, tested).
-- [ ] `apps/agent`: deterministic quote engine with IDs.
+- [ ] `apps/web`: health-factor panel (Aave HF vs protected HF estimate), replay view.
 
 ### Wed 12-02
-- [ ] Bankr integration; LLM picks quote ID; placeholder prose; **guardrail test**.
-- [ ] Post #5: agent demo clip.
+- [ ] Bankr live integration (with partner key); agent demo clip. Post #5.
 
 ### Thu 12-03
-- [ ] Backtest across all weekends; publish results (writer return, worst weekend, hit
-      rate, liquidations avoided). Post #6.
-- [ ] Edge-case demos: paused feed → void, multiplier change, refused stock.
+- [ ] Publish backtest. Post #6. Edge-case demo recordings.
 
 ### Fri 12-04
 - [ ] Video (≤3 min, script in `PITCH.md` §Demo), README polish, submit.
@@ -85,6 +90,9 @@ Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27). The f
 3. Corporate-action rescaling — replace with "any multiplier change ⇒ void".
 4. Health-factor panel reads live Aave — fall back to user-entered position.
 5. Web app polish — scripts + block explorer are acceptable for settlement steps.
+
+Note: the web app is last in build order, but a minimal one (quote + buy + positions) is
+still required for the video.
 
 **Never cut:** full collateralization, permissionless settle/void, replay demo above/below
 strike, published backtest, honest disclosures.

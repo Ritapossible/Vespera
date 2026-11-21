@@ -70,3 +70,8 @@ Disclosed: the mirror key is trusted on testnet only.
 Observed weekend moves for mega-caps are small (sd 0.3–0.5%); a 97% strike never paid in the
 sample. Offer a near band (99%→95%) alongside 97%→90% and 97%→85%, and lead the demo with the
 higher-volatility names (MSTR, NVDA, SNDK). The pitch says honestly that this is tail insurance.
+
+### D16 — Backend before web app (2026-11-21)
+Requested by the project owner. The web app is built only after the contracts are hardened and
+the keeper, replay harness, backtest and agent backend work and are tested from scripts. Early
+purchases go through scripts, the agent, or a block explorer.

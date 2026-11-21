@@ -1,59 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
-
-const USDC = (n: number | string) => ethers.parseUnits(String(n), 6);
-const PX = (n: number | string) => ethers.parseUnits(String(n), 8);
-const STOCK = 0;
-const DAY = 24 * 3600;
-
-async function deploy() {
-  const [owner, writer, buyer, agent, other] = await ethers.getSigners();
-
-  const usdc = await ethers.deployContract("MockUSDC");
-  const feed = await ethers.deployContract("MockAggregator", [8, owner.address]);
-  const token = await ethers.deployContract("MockB20", ["Tesla (tokenized)", "TSLAc", owner.address]);
-  const adapter = await ethers.deployContract("ChainlinkAdapter", [owner.address]);
-  await adapter.setSource(STOCK, await feed.getAddress(), await token.getAddress());
-
-  const market = await ethers.deployContract("VesperaMarket", [
-    await usdc.getAddress(),
-    await adapter.getAddress(),
-    owner.address,
-    5000, // cap: 50% of vault assets locked per stock
-    USDC(10), // min notional
-  ]);
-  const vault = await ethers.deployContract("VesperaVault", [
-    await usdc.getAddress(),
-    await market.getAddress(),
-    STOCK,
-    "Vespera TSLA writers",
-    "vTSLA",
-  ]);
-  await market.listStock(STOCK, await vault.getAddress());
-
-  for (const s of [writer, buyer, other]) {
-    await usdc.mint(s.address, USDC(1_000_000));
-    await usdc.connect(s).approve(await market.getAddress(), ethers.MaxUint256);
-    await usdc.connect(s).approve(await vault.getAddress(), ethers.MaxUint256);
-  }
-  await vault.connect(writer).deposit(USDC(100_000), writer.address);
-
-  const now = await time.latest();
-  const ep = {
-    sellOpen: now + 100,
-    cutoff: now + 1_000,
-    close: now + 2_000,
-    reopen: now + 2_000 + 2 * DAY,
-  };
-  await market.createEpoch(ep.sellOpen, ep.cutoff, ep.close, ep.reopen);
-  await market.postRateCard(0, STOCK, [
-    { upperBps: 9700, lowerBps: 8500, premiumBps: 50 }, // band 0: 97% -> 85%, 0.5% premium
-    { upperBps: 9500, lowerBps: 9000, premiumBps: 20 }, // band 1
-  ]);
-
-  return { owner, writer, buyer, agent, other, usdc, feed, token, adapter, market, vault, ep };
-}
+import { USDC, PX, STOCK, DAY, round, deploy } from "./helpers";
 
 /** Bought one 10,000 USDC band-0 position, Friday reference round pushed, now past close. */
 async function boughtAndClosed() {
@@ -66,7 +14,6 @@ async function boughtAndClosed() {
   return f;
 }
 
-const round = (n: number) => (1n << 64n) | BigInt(n);
 
 describe("VesperaMarket", () => {
   describe("epochs and rate cards", () => {
