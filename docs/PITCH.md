@@ -10,7 +10,7 @@ stock-backed loans) · **Partner:** Bankr · **Deadline:** 2026-12-05
 ## Problem
 Tokenized stocks on Base can be lending collateral, but the stock market closes. From Friday
 close to Monday open the oracle price is frozen while news keeps happening, and Monday's price
-can gap straight through a liquidation point. Crypto collateral trades 24/7; stock collateral
+can gap straight through a liquidation point the moment the feed resumes on Sunday evening. Crypto collateral trades 24/7; stock collateral
 doesn't. Nothing on Base hedges this today.
 
 ## Product
@@ -50,12 +50,12 @@ the mandate, even from a compromised agent. Every decision leaves a public trace
 
 ## Demo — one moment
 Replay harness: real contracts on a Base fork, fed real historical weekends, chosen by a scan
-rule. Side by side on a big-gap weekend: the Aave position crosses liquidation at Monday open;
+rule. Side by side on a big-gap weekend: the Aave position crosses liquidation when the feed resumes Sunday 8pm ET;
 the Vespera position settles in the same block as the first valid print. Then a calm weekend:
 expires worthless, writer keeps the premium. Plus edge cases: paused feed → void, multiplier
 change, refused stock.
 
-Live bonus: real settlement on Base Sepolia across the Thanksgiving closure (reopen Mon 11-30).
+Live bonus: real settlement on Base Sepolia across the Thanksgiving closure, using real mainnet prices mirrored into the testnet feed (feed resumes Sun 11-29 8pm ET).
 
 ### Video script (≤3 min)
 1. 0:00 Problem in one sentence + a frozen-price chart over a weekend.

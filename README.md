@@ -22,8 +22,8 @@ react. Crypto collateral trades 24/7 and never has this problem; stock collatera
   price) and a **notional**, pays a USDC premium, and receives a transferable position (NFT).
 - The position is a **cash-settled put spread**. Max payout = band width × notional (12% in
   the example), locked from a per-stock writer vault at purchase. 100% collateralized.
-- Anyone can call `settle()`. It pays out against the **first valid Chainlink print at or
-  after reopen**, under rules published before any sale. No admin settlement key.
+- Anyone can settle. Payouts use the **first Chainlink print after the feed resumes (Sunday
+  20:00 ET)**, under rules published before any sale. No admin settlement key.
 - A **Bankr agent** can buy protection every weekend under a user-signed mandate (max premium,
   strike band, notional, expiry) that the contract enforces.
 
@@ -42,7 +42,27 @@ react. Crypto collateral trades 24/7 and never has this problem; stock collatera
 
 ## Status
 
-Planning. No code yet. See `CLAUDE.md` → *Current state*.
+- Contracts written and tested (26 tests): `contracts/`.
+- Weekend-gap dataset from the mainnet settlement feeds: `data/weekend-gaps.csv` (10 stocks ×
+  15 weekends) and rate card `data/ratecard.json`.
+- Next: Base Sepolia deployment, web app, agent. See `docs/PLAN.md`.
+
+## Run
+
+```
+cd contracts && npm i --legacy-peer-deps && npx hardhat test
+cd packages/pricing && npm i && npx tsx src/gaps.ts && npx tsx src/ratecard.ts
+```
+
+## Deploy (Base Sepolia)
+
+```
+cd contracts
+export DEPLOYER_PRIVATE_KEY=0x...        # testnet-only key with Base Sepolia ETH
+npx hardhat run scripts/deploy.ts --network baseSepolia
+FRIDAY=2026-11-27 CUTOFF_ET=11:00 npx hardhat run scripts/epoch.ts --network baseSepolia
+npx hardhat run scripts/mirror.ts --network baseSepolia   # repeat every few minutes
+```
 
 ## Disclaimer
 

@@ -1,0 +1,421 @@
+{
+  "generatedAt": "2026-11-21T20:37:23.295Z",
+  "method": {
+    "LOAD": 2,
+    "FLOOR_BPS": 10,
+    "SIGMA_FLOOR": 0.01
+  },
+  "source": "data/weekend-gaps.csv",
+  "stocks": {
+    "AAPL": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.003095620167627518,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.003095620167627518,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.003095620167627518,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ],
+    "AMZN": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.005038898347853427,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 2.5693333333333492,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.005038898347853427,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.005038898347853427,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ],
+    "GOOGL": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.003957046148609114,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.003957046148609114,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.003957046148609114,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ],
+    "META": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.004519326850563281,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0.14066666666664082,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.004519326850563281,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.004519326850563281,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ],
+    "MSFT": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.0034588270433133193,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.0034588270433133193,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.0034588270433133193,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ],
+    "MSTR": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 93,
+        "stats": {
+          "n": 15,
+          "hits": 4,
+          "sampleSd": 0.020784094934989752,
+          "sigmaUsed": 0.020784094934989752,
+          "eEmpBps": 46.494666666666724,
+          "eModelBps": 26.973032978342207
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 32,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.020784094934989752,
+          "sigmaUsed": 0.020784094934989752,
+          "eEmpBps": 15.794000000000011,
+          "eModelBps": 7.370594596706302
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 32,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.020784094934989752,
+          "sigmaUsed": 0.020784094934989752,
+          "eEmpBps": 15.794000000000011,
+          "eModelBps": 7.8797365202576195
+        }
+      }
+    ],
+    "NVDA": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 25,
+        "stats": {
+          "n": 15,
+          "hits": 2,
+          "sampleSd": 0.010738169783223457,
+          "sigmaUsed": 0.010738169783223457,
+          "eEmpBps": 12.028666666666613,
+          "eModelBps": 7.536602821793692
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.010738169783223457,
+          "sigmaUsed": 0.010738169783223457,
+          "eEmpBps": 0,
+          "eModelBps": 1.2262156931766688
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.010738169783223457,
+          "sigmaUsed": 0.010738169783223457,
+          "eEmpBps": 0,
+          "eModelBps": 1.2983489936970443
+        }
+      }
+    ],
+    "SNDK": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 59,
+        "stats": {
+          "n": 15,
+          "hits": 3,
+          "sampleSd": 0.016091682608795833,
+          "sigmaUsed": 0.016091682608795833,
+          "eEmpBps": 29.166666666666636,
+          "eModelBps": 17.254136688838177
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 11,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.016091682608795833,
+          "sigmaUsed": 0.016091682608795833,
+          "eEmpBps": 5.040000000000007,
+          "eModelBps": 3.771034386818184
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 11,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.016091682608795833,
+          "sigmaUsed": 0.016091682608795833,
+          "eEmpBps": 5.040000000000007,
+          "eModelBps": 4.010812146603958
+        }
+      }
+    ],
+    "SPCX": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.00860909381887677,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.00860909381887677,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.00860909381887677,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ],
+    "TSLA": [
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500,
+        "premiumBps": 13,
+        "stats": {
+          "n": 15,
+          "hits": 1,
+          "sampleSd": 0.004972570394563449,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0.08133333333330366,
+          "eModelBps": 6.4164107024457655
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 9000,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.004972570394563449,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.0004548555358865
+        }
+      },
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500,
+        "premiumBps": 10,
+        "stats": {
+          "n": 15,
+          "hits": 0,
+          "sampleSd": 0.004972570394563449,
+          "sigmaUsed": 0.01,
+          "eEmpBps": 0,
+          "eModelBps": 1.058788292040141
+        }
+      }
+    ]
+  }
+}

@@ -11,3 +11,7 @@ contracts/broadcast/*/31337/
 dist/
 coverage/
 .DS_Store
+contracts/artifacts/
+contracts/typechain-types/
+contracts/deployments/localhost.json
+contracts/deployments/hardhat.json

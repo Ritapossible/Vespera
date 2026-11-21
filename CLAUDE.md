@@ -44,11 +44,15 @@ One sentence (do not drift from it):
   back to buyer, collateral back to vault.
 - **Replay harness** on a Base fork is the primary demo; the live Thanksgiving settlement is a
   bonus.
-- TypeScript everywhere off-chain (pnpm workspace); Foundry for contracts.
+- **Reopen = feed resumption, Sun 20:00 ET; close = Fri 20:00 ET** (observed on-chain, D9).
+- **Any B20 multiplier change ⇒ void** (no rescaling, D10).
+- **Pricing data comes from the settlement oracle itself** (D13); Student-t model covers tails.
+- **Testnet mirrors real mainnet rounds** into mock feeds (D14).
+- Hardhat (not Foundry — installer blocked, D11); TypeScript off-chain.
 
 ## Conventions
 
-- Solidity `^0.8.24`, OpenZeppelin v5, Foundry. Custom errors, no revert strings.
+- Solidity `^0.8.24`, OpenZeppelin v5, Hardhat (`viaIR`). Custom errors, no revert strings.
   Every external state-changing function has a test, including the revert paths.
 - USDC amounts: 6 decimals. Prices: Chainlink feed decimals, normalized to 1e18 internally.
   Band/strike ratios in **bps of reference** (`9700` = 97%).
@@ -58,11 +62,22 @@ One sentence (do not drift from it):
   licence) in a sibling `*.meta.json`.
 - Commits: small, imperative subject. No model identifiers in commits or code.
 
-## Layout (target)
+## Commands
 
 ```
-contracts/          Foundry project (src/, test/, script/)
-packages/pricing/   gap dataset loader, rate-card generator, backtest
+cd contracts && npm i --legacy-peer-deps && npx hardhat test       # 26 tests
+cd packages/pricing && npm i && npx tsx src/gaps.ts                # refresh dataset (public RPC, ~5 min)
+npx tsx src/ratecard.ts                                            # data/ratecard.json
+cd contracts && npx hardhat run scripts/deploy.ts --network baseSepolia
+FRIDAY=2026-11-27 CUTOFF_ET=11:00 npx hardhat run scripts/epoch.ts --network baseSepolia
+npx hardhat run scripts/mirror.ts --network baseSepolia            # schedule every few minutes
+```
+
+## Layout
+
+```
+contracts/          Hardhat project (contracts/, test/, scripts/, deployments/)
+packages/pricing/   gaps.ts (dataset from mainnet feeds), ratecard.ts; backtest TODO
 packages/replay/    fork + mock feed + time-warp harness, scan mode
 apps/web/           Next.js + wagmi: quote, buy, positions, vault, health-factor panel
 apps/agent/         Bankr integration, quote engine, mandate signing, guardrail tests
@@ -72,13 +87,17 @@ docs/               plan, architecture, rules, pricing, decisions, verify list
 
 ## Current state
 
-- 2026-11-21: Application submitted. Repo created. Planning docs written. **No code yet.**
-- Next: Day 1 of `docs/PLAN.md` — gap dataset + settlement rules review, then contracts.
-- Blockers: the items in `docs/VERIFY.md` §Critical (Chainlink stock feed behaviour on Base,
-  token multiplier interface, Aave-on-Base listings, Bankr integration surface).
+- 2026-11-21: Critical facts verified. Contracts + 26 tests green. Dataset (150 weekends) and
+  rate card generated from mainnet feeds. Deploy/epoch/mirror scripts work on a local node.
+- **Next:** deploy to Base Sepolia (needs a funded deployer key from the user), create the
+  Thanksgiving epoch, run the mirror, then `apps/web`.
+- Watch: Thanksgiving feed behaviour (VERIFY.md). Pitch copy must say "reopen (Sun 8pm ET)",
+  not "Monday open".
+- Finding to use honestly: mega-cap weekend gaps were tiny in the sample; lead with MSTR/NVDA.
 
 ## Session log
 
 | Date | What happened |
 | --- | --- |
 | 2026-11-21 | Idea refined (spread, settlement rules, replay demo, Bankr mandate). Application submitted (Programmable Stock Markets, Bankr). Repo scaffolded with docs. |
+| 2026-11-21 | Verified feeds/B20/Aave V4/Bankr. Found feed schedule on-chain (D9). Built contracts (market, vault, adapter, mandates) + 26 tests; gaps + rate-card pipeline; deploy/epoch/mirror scripts. |

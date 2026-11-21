@@ -13,16 +13,20 @@
                                                                     │  │   │
                          ┌──────────────────────────────────────────┘  │   │
                          ▼                                             ▼   ▼
-                  VesperaVault (per stock, ERC-4626 USDC)      PositionNFT  OracleAdapter
-                  lock / release / pay                         (ERC-721)    (Chainlink or Mock)
+                  VesperaVault (per stock, ERC-4626 USDC)      ERC-721 pos. ChainlinkAdapter
+                  lock / release / pay                         (ERC-721)    (real or mock feed)
                                                                             + token multiplier
- anyone ──snapshotReference() / settle() / void()──▶ VesperaMarket
+ anyone ──recordReference / recordSettlement / voidBook / redeem──▶ VesperaMarket
 ```
 
 ## On-chain
 
+> Implemented: `contracts/contracts/` (Hardhat, Solidity 0.8.24, OZ v5, viaIR). 26 tests in
+> `contracts/test/VesperaMarket.test.ts`. Struct fields below are indicative; the code is the
+> source of truth.
+
 ### `VesperaMarket` (core, one deployment)
-Owns epochs, rate cards, positions, settlement.
+Owns epochs, rate cards, positions (it *is* the ERC-721), settlement, and agent mandates.
 
 ```solidity
 struct Epoch {
@@ -46,17 +50,19 @@ Functions:
 - `createEpoch(Epoch)` — operator; must be created before `sellOpen`; **immutable after**.
 - `postRateCard(epochId, stockId, Band[])` — operator (pricer); only before `sellOpen`;
   **immutable after**. Disclosed principal: pricing, not settlement.
+- `listStock(stockId, vault)` — operator; registers a separately deployed vault (checked to
+  point at this market/stock/USDC). Set once.
 - `buy(epochId, stockId, bandId, notional, maxPremium)` — during `[sellOpen, cutoff)`.
   Checks OI cap, pulls premium, asks vault to `lock(maxPayout)`, mints NFT.
 - `buyFor(Mandate, sig, …)` — same, via `MandateRegistry` checks (agent path).
-- `snapshotReference(epochId, stockId, roundHint)` — anyone, after `close`. Verifies the hint
+- `recordReference(epochId, stockId, roundHint)` — anyone, after `close`. Verifies the hint
   is the last round with `updatedAt ≤ close`. Stores `R` and multiplier `m0`.
-- `settle(positionId, roundHint)` — anyone, after `reopen`. Verifies hint is the first valid
-  round with `updatedAt ≥ reopen`. Applies multiplier rule. Pays `payout` to NFT holder from
-  vault, releases remainder. Batched variant `settleAll(epochId, stockId, roundHint)` — the
-  settlement price is per (epoch, stock), so it is computed once and cached.
-- `void(positionId)` — anyone, after `voidAfter` with no settlement price, or when the
-  multiplier rule says void. Refunds premium, releases collateral.
+- `recordSettlement(epochId, stockId, roundHint)` — anyone, in `[reopen, voidAfter)`. Verifies
+  the hint is the first round with `updatedAt ≥ reopen`; voids the book instead if the B20
+  multiplier changed. One `S` per (epoch, stock).
+- `voidBook(epochId, stockId)` — anyone, after `voidAfter` if not settled.
+- `redeem(positionId)` / `redeemMany(ids)` — anyone; pays the current NFT holder (payout if
+  settled, premium refund if voided) and releases the rest of the collateral.
 
 Invariants (fuzz/invariant tests):
 - `vault.locked ≤ vault.balance` always.
@@ -74,9 +80,9 @@ Invariants (fuzz/invariant tests):
 - `maxWithdraw` respects `locked` even in OPEN (defensive).
 - OI cap: `totalLockedThisEpoch ≤ capBps × totalAssets()` at time of sale.
 
-### `PositionNFT` (ERC-721)
-Minted/burned by the market. `tokenURI` renders on-chain SVG with stock, band, notional,
-epoch dates, status. Transferable: the holder at settlement is paid.
+### Positions (ERC-721, built into the market)
+Transferable; the holder at redemption is paid. On-chain SVG `tokenURI` is a nice-to-have
+(not yet built).
 
 ### `OracleAdapter`
 Abstracts the price source so the market never touches a specific feed directly.
@@ -89,17 +95,16 @@ interface IOracleAdapter {
     function multiplier(uint32 stockId) external view returns (uint256); // 1e18 = 1×
 }
 ```
-- `ChainlinkAdapter`: wraps `AggregatorV3Interface`. `valid` = not paused/stale per the
-  feed's actual semantics (**see VERIFY.md** — must confirm how stock feeds signal market
-  status). Handles phase boundaries in round IDs conservatively (if the previous round is in
-  another phase, require the caller to prove via the proxy's `getRoundData`).
-- `MockAdapter`: settable rounds, used in tests, Sepolia (if no live feed) and replay.
-- Multiplier source: the stock token's multiplier getter if one exists (**VERIFY**);
-  otherwise constant 1e18 and the void-on-corporate-action rule is enforced off-chain only
-  (disclosed).
+- `ChainlinkAdapter`: wraps the Chainlink proxy (`getRoundData`, try/catch → "round
+  missing"). The feed has no pause flag; a frozen feed just produces no new rounds. Round ids are
+  `(phase << 64) | n`; `prevRoundId` reverts at a phase boundary (that weekend would void —
+  accepted, disclosed). Feed and token per stock are set once, never changed.
+- Multiplier: B20 `multiplier()` (WAD) read from the stock token.
+- Tests, Sepolia and replay use `MockAggregator` (owner-pushed rounds with explicit
+  `updatedAt`) behind the same `ChainlinkAdapter` — one code path everywhere.
 
-### `MandateRegistry` (agent path)
-EIP-712 typed mandate signed by the owner:
+### Agent mandates (`buyFor`, built into the market)
+EIP-712 typed mandate signed by the owner (EOA or ERC-1271 smart account):
 ```
 Mandate { owner, agent, stockMask, maxPremiumPerEpoch, maxNotional,
           minUpperBps, maxUpperBps, expiry, nonce }
@@ -112,16 +117,20 @@ agent is compromised.**
 ## Off-chain
 
 ### `packages/pricing`
-- `fetchGaps`: daily OHLC per ticker from a public source → rows
-  `(ticker, closeDate, closePx, reopenDate, openPx, gap, closureType)`.
-  `closureType ∈ {weekend, holiday-long}`. Provenance in `data/*.meta.json`.
-- `rateCard(epoch, stock)`: empirical expected payout per band × load, floor, event filter
-  (see `PRICING.md`). Output JSON matching `postRateCard` args.
+- `gaps.ts` (built): binary-searches each mainnet feed's round history for every weekend's
+  R and S → `data/weekend-gaps.csv` + provenance.
+- `ratecard.ts` (built): empirical + Student-t model → `data/ratecard.json`, consumed by
+  `contracts/scripts/epoch.ts`.
 - `backtest`: replays every historical closure through the same pricing; writer P&L series,
   worst weekend, hit rate, drawdown.
 
+### Contract scripts (built: `contracts/scripts/`)
+- `deploy.ts` — MockUSDC, adapter, market, and per stock a MockAggregator + MockB20 + vault.
+- `epoch.ts` — creates the weekend epoch (Fri 20:00 ET / Sun 20:00 ET) and posts rate cards.
+- `mirror.ts` — copies real mainnet Chainlink rounds into the Sepolia mocks (run on a schedule).
+
 ### `packages/replay`
-- Starts `anvil --fork-url <Base RPC>`; deploys contracts with `MockAdapter`.
+- Starts a Hardhat node forking Base; deploys contracts with `MockAggregator` feeds.
 - Feeds a chosen historical weekend: sets reference round, warps to reopen, pushes open round,
   calls `settle`. Prints a before/after table (and the Aave HF comparison).
 - `--scan`: no chain needed; finds weekends where gap crosses a band (and calm ones), so the

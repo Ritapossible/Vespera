@@ -3,15 +3,16 @@
 Today: **Sat 2026-11-21**. Deadline: **Fri 2026-12-05**. 14 days.
 
 Hard date: contracts + buy flow live on **Base Sepolia by Wed 2026-11-25**, before the
-Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27, reopen Mon 11-30).
+Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27). The feed resumes
+**Sun 11-29 20:00 ET (Mon 11-30 01:00 UTC)** — that is the live settlement moment (see D9).
 
 ## Milestones
 
 | # | Milestone | Done when | Due |
 | --- | --- | --- | --- |
-| M0 | Facts verified | `docs/VERIFY.md` §Critical all resolved or worked around | Sun 11-22 |
-| M1 | Dataset + rate card | Gap CSV with provenance; rate card generated for 3–5 stocks | Sun 11-22 |
-| M2 | Core contracts | Vault, Market, Position NFT, Oracle adapter, settle/void — tests green | Tue 11-24 |
+| M0 | Facts verified | `docs/VERIFY.md` §Critical all resolved or worked around | ✅ Sat 11-21 |
+| M1 | Dataset + rate card | Gap CSV with provenance; rate card generated | ✅ Sat 11-21 (10 stocks × 15 weekends) |
+| M2 | Core contracts | Vault, Market, positions, adapter, settle/void, mandates — tests green | ✅ Sat 11-21 (26 tests) |
 | M3 | Sepolia live | Deployed, verified, buy flow in web app, first purchase | **Wed 11-25** |
 | M4 | Live weekend | Positions open over Thanksgiving; settled Mon 11-30 | Mon 11-30 |
 | M5 | Replay harness | Fork + mock feed + time warp; scan mode; above/below strike reproducible | Mon 11-30 |
@@ -21,27 +22,25 @@ Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27, reopen
 
 ## Day by day
 
-### Sat 11-21
+### Sat 11-21 — done (ahead of plan)
 - [x] Pitch refined, application submitted, repo + docs.
-- [ ] Work through `docs/VERIFY.md` §Critical (feeds, token interface, Aave listing, Bankr).
-- [ ] Choose 3–5 launch stocks (must have feed + ideally Aave listing).
-- [ ] Post #1: "Building weekend gap protection for tokenized stocks on Base" + problem thread.
+- [x] VERIFY §Critical: feeds, B20 multiplier, Aave V4 listing, Bankr submit endpoint (see VERIFY.md).
+- [x] Discovered feed schedule (Fri 20:00 ET → Sun 20:00 ET) from on-chain history → D9.
+- [x] `packages/pricing`: `gaps.ts` (dataset from the settlement oracle) + `ratecard.ts`.
+- [x] Contracts: adapter, vault, market (incl. `buyFor` mandates), mocks — 26 tests green.
+- [x] Scripts: `deploy.ts`, `epoch.ts`, `mirror.ts` — verified end-to-end on a local node.
+- [ ] Choose launch stocks — proposal: TSLA, NVDA, MSTR (deploy config).
+- [ ] Post #1: problem thread.
 
 ### Sun 11-22
-- [ ] `packages/pricing`: fetch daily OHLC, compute Friday-close → next-open gaps incl.
-      holiday closures; write `data/gaps.csv` + `.meta.json` provenance.
-- [ ] Rate-card generator (see `PRICING.md`), output JSON per epoch.
-- [ ] Freeze `SETTLEMENT_RULES.md` v1. Post #2: settlement rules.
+- [ ] **Needs user:** a funded Base Sepolia deployer key (see README → Deploy).
+- [ ] Deploy to Base Sepolia; verify contracts; seed vaults; create Thanksgiving epoch.
+- [ ] Freeze `SETTLEMENT_RULES.md` v1. Post #2: settlement rules + first dataset findings.
+- [ ] Invariant/fuzz tests (`locked ≤ assets`, payout ≤ maxPayout) and a few more edge tests.
 
-### Mon 11-23
-- [ ] Foundry init. `OracleAdapter` (+ `MockAggregator`), `PositionNFT`, `VesperaVault`
-      (ERC-4626 + phases + collateral lock).
-- [ ] Unit tests: round-hint verification, stale/paused handling, multiplier rescale.
-
-### Tue 11-24
-- [ ] `VesperaMarket`: epochs, rate card, `buy`, `snapshotReference`, `settle`, `void`,
-      OI caps. Full test suite incl. revert paths and invariant: `locked ≤ vault assets`.
-- [ ] Deploy script.
+### Mon 11-23 / Tue 11-24
+- [ ] `apps/web` (pulled forward): quote card, buy, positions, vault deposit.
+- [ ] Mirror running on a schedule; keeper script for record/settle/redeem.
 
 ### Wed 11-25 — **Sepolia deadline**
 - [ ] Deploy + verify on Base Sepolia. Seed vaults with test USDC.
@@ -57,11 +56,11 @@ Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27, reopen
 - [ ] Replay scan mode: find one big-gap weekend and one calm weekend; script both.
 - [ ] Health-factor panel (read Aave position; show Aave HF and "protected HF (estimate)").
 
-### Mon 11-30
-- [ ] **Live settlement** after reopen. Screen-record. Post #4: first real settlement.
+### Sun 11-29 evening ET / Mon 11-30 01:00 UTC
+- [ ] **Live settlement** right after the feed resumes. Screen-record. Post #4.
 
 ### Tue 12-01
-- [ ] `MandateRegistry` (EIP-712) + `buyFor`. Tests: out-of-mandate purchase reverts.
+- [x] Mandates + `buyFor` (done early, in the market contract, tested).
 - [ ] `apps/agent`: deterministic quote engine with IDs.
 
 ### Wed 12-02

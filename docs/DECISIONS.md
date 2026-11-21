@@ -35,3 +35,38 @@ winner).
 
 ### D8 — No upgradeability (2026-11-21)
 Simpler trust story; redeploy per version.
+
+### D9 — "Reopen" is the feed's Sunday 20:00 ET resumption (2026-11-21)
+On-chain history shows the feed resumes Sunday 20:00 ET, not at the Monday cash open, and its
+week ends Friday 20:00 ET. **Decision:** epoch `close` = Fri 20:00 ET, `reopen` = Sun 20:00 ET.
+**Consequence:** settlement happens exactly when a lending market on the same feed can start
+liquidating — the moment that matters to the buyer. Pitch copy must say "reopen", not "Monday
+open".
+
+### D10 — Void on any multiplier change; no rescaling (2026-11-21)
+Supersedes the rescale idea in SETTLEMENT_RULES v0.1. The feed freezes through corporate actions,
+so a changed multiplier means R and S are not comparable. Simpler and safer.
+
+### D11 — Hardhat instead of Foundry (2026-11-21)
+The Foundry installer could not run in the build environment; Hardhat is installable from npm.
+Tests in TypeScript (ethers v6, chai). `viaIR` on. Revisit only if it slows us down.
+
+### D12 — Vaults deployed separately, registered with `listStock` (2026-11-21)
+Embedding vault creation pushed the market over the 24KB limit. `listStock` checks the vault
+points at this market, stock and USDC.
+
+### D13 — Pricing data comes from the settlement oracle itself (2026-11-21)
+`packages/pricing/src/gaps.ts` binary-searches the Base mainnet feeds' round history for every
+weekend's R and S using the exact settlement definitions. No licensing issue, identical
+definitions, anyone can recompute. Limitation: only ~15 weekends of history, so the rate card
+also uses a fat-tailed (Student-t, ν = 3) model with a volatility floor.
+
+### D14 — Testnet mirrors mainnet prices (2026-11-21)
+Base Sepolia has no stock feeds. `scripts/mirror.ts` copies real mainnet rounds (answer and
+`updatedAt`) into `MockAggregator`s, so the Thanksgiving settlement on testnet uses real prices.
+Disclosed: the mirror key is trusted on testnet only.
+
+### D15 — Default bands follow the data (2026-11-21)
+Observed weekend moves for mega-caps are small (sd 0.3–0.5%); a 97% strike never paid in the
+sample. Offer a near band (99%→95%) alongside 97%→90% and 97%→85%, and lead the demo with the
+higher-volatility names (MSTR, NVDA, SNDK). The pitch says honestly that this is tail insurance.
