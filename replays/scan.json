@@ -1,0 +1,124 @@
+{
+  "generatedAt": "2026-11-21T20:58:52.970Z",
+  "rule": "drop = most negative weekend gap across all stocks in data/weekend-gaps.csv; calm = smallest |gap| for the same stock",
+  "disclosure": "Real contracts and keeper on a local Hardhat chain started at a past date. Prices and timestamps are the real Base mainnet Chainlink rounds; the feed contract and USDC are mocks. Premiums are walk-forward (priced only from earlier weekends). Lending figures are illustrative, not Aave's parameters.",
+  "options": {
+    "bands": [
+      {
+        "upperBps": 9700,
+        "lowerBps": 8500
+      },
+      {
+        "upperBps": 9900,
+        "lowerBps": 9500
+      }
+    ],
+    "notionalUsdc": 10000,
+    "vaultUsdc": 100000,
+    "pricing": {
+      "load": 2,
+      "floorBps": 10,
+      "sigmaFloor": 0.01
+    },
+    "borrower": {
+      "liquidationThreshold": 0.7,
+      "healthFactorFriday": 1.03
+    }
+  },
+  "reports": [
+    {
+      "ticker": "MSTR",
+      "friday": "2026-08-28",
+      "close": "Fri, Aug 28, 08:00 PM ET",
+      "reopen": "Sun, Aug 30, 08:00 PM ET",
+      "R": {
+        "round": "18446744073709551617",
+        "at": "Fri, Aug 28, 03:49 PM ET",
+        "price": 127.3083
+      },
+      "S": {
+        "round": "18446744073709551618",
+        "at": "Sun, Aug 30, 08:00 PM ET",
+        "price": 127.62
+      },
+      "gapPct": 0.24480000000000002,
+      "outcome": "settled",
+      "positions": [
+        {
+          "upperBps": 9700,
+          "lowerBps": 8500,
+          "premiumBps": 10,
+          "premiumUsdc": 10,
+          "maxPayoutUsdc": 1200,
+          "payoutUsdc": 0,
+          "pricedFromWeekends": 3
+        },
+        {
+          "upperBps": 9900,
+          "lowerBps": 9500,
+          "premiumBps": 13,
+          "premiumUsdc": 13,
+          "maxPayoutUsdc": 400,
+          "payoutUsdc": 0,
+          "pricedFromWeekends": 3
+        }
+      ],
+      "writerPnlUsdc": 23,
+      "lending": {
+        "note": "Illustrative position: 10000 USDC of MSTR collateral, liquidation threshold 0.7, health factor 1.03 on Friday. Not Aave's actual parameters. The protected figure is Vespera's estimate assuming the 97%→85% payout repays debt; Aave does not recognize Vespera positions.",
+        "healthFactorFriday": 1.03,
+        "healthFactorAtReopen": 1.032521838717507,
+        "liquidatableAtReopen": false,
+        "protectedHealthFactorEstimate": 1.0325218387175068,
+        "liquidatableIfProtected": false
+      }
+    },
+    {
+      "ticker": "MSTR",
+      "friday": "2026-11-13",
+      "close": "Fri, Nov 13, 08:00 PM ET",
+      "reopen": "Sun, Nov 15, 08:00 PM ET",
+      "R": {
+        "round": "18446744073709551619",
+        "at": "Fri, Nov 13, 07:33 PM ET",
+        "price": 109.5
+      },
+      "S": {
+        "round": "18446744073709551620",
+        "at": "Sun, Nov 15, 08:00 PM ET",
+        "price": 103.62078649
+      },
+      "gapPct": -5.3691,
+      "outcome": "settled",
+      "positions": [
+        {
+          "upperBps": 9700,
+          "lowerBps": 8500,
+          "premiumBps": 10,
+          "premiumUsdc": 10,
+          "maxPayoutUsdc": 1200,
+          "payoutUsdc": 236.914475,
+          "pricedFromWeekends": 14
+        },
+        {
+          "upperBps": 9900,
+          "lowerBps": 9500,
+          "premiumBps": 43,
+          "premiumUsdc": 43,
+          "maxPayoutUsdc": 400,
+          "payoutUsdc": 400,
+          "pricedFromWeekends": 14
+        }
+      ],
+      "writerPnlUsdc": -583.914475,
+      "lending": {
+        "note": "Illustrative position: 10000 USDC of MSTR collateral, liquidation threshold 0.7, health factor 1.03 on Friday. Not Aave's actual parameters. The protected figure is Vespera's estimate assuming the 97%→85% payout repays debt; Aave does not recognize Vespera positions.",
+        "healthFactorFriday": 1.03,
+        "healthFactorAtReopen": 0.9746978089926941,
+        "liquidatableAtReopen": true,
+        "protectedHealthFactorEstimate": 1.0099033139687743,
+        "liquidatableIfProtected": false
+      }
+    }
+  ]
+}

@@ -9,6 +9,8 @@ const config: HardhatUserConfig = {
     settings: { optimizer: { enabled: true, runs: 200 }, viaIR: true, evmVersion: "cancun" },
   },
   networks: {
+    // Replay harness: start the chain at a past date so historical rounds replay at real times.
+    hardhat: process.env.REPLAY_START ? { initialDate: process.env.REPLAY_START } : {},
     baseSepolia: {
       url: process.env.BASE_SEPOLIA_RPC_URL ?? "https://sepolia.base.org",
       chainId: 84532,

@@ -79,6 +79,22 @@ Premium · max payout · collateral locked · historical frequency of any payout
 **what we can't guarantee**: halts, unscheduled closures, corporate actions (→ void), oracle
 failure (→ void), and that the protected health factor is our estimate.
 
+## First replay results (walk-forward, all 150 weekends, 2026-11-21)
+
+One 97%→85% and one 99%→95% position of 10,000 USDC per stock per weekend, through the real
+contracts (`npm run replay:all`, `replays/all.json`):
+
+| | Premiums | Payouts | Writer P&L | Weekends paid |
+| --- | --- | --- | --- | --- |
+| All stocks | 4,378 | 1,670 | **+2,708** | 12 of 150 |
+| MSTR | 470 | 934 | **−464** | 4 of 15 |
+| SNDK | 1,135 | 513 | +622 | 3 of 15 |
+
+MSTR was **underpriced**: early weekends had almost no history and the sigma floor (1%) was far
+below MSTR's realized weekend volatility (~2%). Both illustrative liquidations in the sample
+(MSTR 11-13, SNDK) were prevented by the 97%→85% protection. The backtest's job is to fix the
+underpricing honestly (e.g. volatility floor per stock class) and publish before/after.
+
 ## Backtest (published regardless of result)
 
 Run every historical weekend through the same rate-card logic (leave-one-out so a weekend is not

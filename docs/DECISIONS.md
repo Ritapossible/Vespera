@@ -75,3 +75,12 @@ higher-volatility names (MSTR, NVDA, SNDK). The pitch says honestly that this is
 Requested by the project owner. The web app is built only after the contracts are hardened and
 the keeper, replay harness, backtest and agent backend work and are tested from scripts. Early
 purchases go through scripts, the agent, or a block explorer.
+
+### D17 — Replay on a local chain started in the past, not a Base fork (2026-11-21)
+Hardhat `initialDate` lets historical weekends run at their real timestamps. A fork would add
+public-RPC latency and rate limits for no gain, since the feed must be a mock filled with real
+rounds either way. Premiums in replay are walk-forward (no lookahead).
+
+### D18 — Pricing code has one source of truth (2026-11-21)
+`quoteBand` in `packages/pricing/src/ratecard.ts` is used by the rate-card CLI, the replay harness
+and (next) the backtest, so published premiums and tested premiums cannot drift apart.

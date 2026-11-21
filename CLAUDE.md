@@ -65,21 +65,24 @@ One sentence (do not drift from it):
 ## Commands
 
 ```
-cd contracts && npm i --legacy-peer-deps && npx hardhat test       # 60 tests (INVARIANT_SEEDS=300 for deep run)
+cd contracts && npm i --legacy-peer-deps && npx hardhat test       # 62 tests (INVARIANT_SEEDS=300 for deep run)
 cd packages/pricing && npm i && npx tsx src/gaps.ts                # refresh dataset (public RPC, ~5 min)
 npx tsx src/ratecard.ts                                            # data/ratecard.json
 cd contracts && npx hardhat run scripts/deploy.ts --network baseSepolia
 FRIDAY=2026-11-27 CUTOFF_ET=11:00 npx hardhat run scripts/epoch.ts --network baseSepolia
 npx hardhat run scripts/mirror.ts --network baseSepolia            # schedule every few minutes
 LOOP_SECONDS=120 npx hardhat run scripts/keeper.ts --network baseSepolia   # DRY_RUN=1 to preview
+npm run replay:scan   # (in contracts/) demo weekends by rule → replays/scan.json
+npm run replay:all    # all 150 weekends, ~10 s → replays/all.json
 ```
 
 ## Layout
 
 ```
 contracts/          Hardhat project (contracts/, test/, scripts/, deployments/)
-packages/pricing/   gaps.ts (dataset from mainnet feeds), ratecard.ts; backtest TODO
-packages/replay/    fork + mock feed + time-warp harness, scan mode
+packages/pricing/   gaps.ts (dataset from mainnet feeds), ratecard.ts (quoteBand); backtest TODO
+contracts/scripts/lib/  keeper.ts, replay.ts (replay harness + scan mode)
+replays/            replay reports (JSON)
 apps/web/           Next.js + wagmi: quote, buy, positions, vault, health-factor panel
 apps/agent/         Bankr integration, quote engine, mandate signing, guardrail tests
 data/               gap dataset + provenance
@@ -92,8 +95,11 @@ docs/               plan, architecture, rules, pricing, decisions, verify list
   rate card generated from mainnet feeds. Deploy/epoch/mirror scripts work on a local node.
 - 2026-11-21 (later): Invariant tests (300 seeds) and keeper done. **Backend-first rule (D16):**
   no web app until replay, backtest and agent backend are done and tested.
-- **Next:** replay harness + scan mode, CLI buy script, backtest, agent backend. Deploy to Base
-  Sepolia as soon as the user provides a funded testnet deployer key.
+- 2026-11-21 (later): Replay harness + scan mode done (real rounds, real contracts, walk-forward
+  pricing). Demo weekend by rule: MSTR 11-13, −5.37%, illustrative HF 1.030 → 0.975, protected ≈
+  1.010. Full replay: writers +2,708 overall but **MSTR −464 (underpriced)** — fix in backtest.
+- **Next:** CLI buy script, backtest (tune pricing, publish before/after), agent backend. Deploy to
+  Base Sepolia as soon as the user provides a funded testnet deployer key.
 - Commits are authored as Rita (GitHub no-reply address); no AI co-author trailers in this repo.
 - Watch: Thanksgiving feed behaviour (VERIFY.md). Pitch copy must say "reopen (Sun 8pm ET)",
   not "Monday open".
@@ -104,5 +110,6 @@ docs/               plan, architecture, rules, pricing, decisions, verify list
 | Date | What happened |
 | --- | --- |
 | 2026-11-21 | Idea refined (spread, settlement rules, replay demo, Bankr mandate). Application submitted (Programmable Stock Markets, Bankr). Repo scaffolded with docs. |
-| 2026-11-21 | Invariant tests + keeper; plan reordered backend-first; history rewritten so Rita is sole author. |
 | 2026-11-21 | Verified feeds/B20/Aave V4/Bankr. Found feed schedule on-chain (D9). Built contracts (market, vault, adapter, mandates) + 26 tests; gaps + rate-card pipeline; deploy/epoch/mirror scripts. |
+| 2026-11-21 | Invariant tests + keeper; plan reordered backend-first; history rewritten so Rita is sole author. |
+| 2026-11-21 | Replay harness + scan mode; `quoteBand` shared pricing; full replay shows MSTR underpriced. |

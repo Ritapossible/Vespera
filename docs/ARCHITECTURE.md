@@ -129,12 +129,19 @@ agent is compromised.**
 - `epoch.ts` — creates the weekend epoch (Fri 20:00 ET / Sun 20:00 ET) and posts rate cards.
 - `mirror.ts` — copies real mainnet Chainlink rounds into the Sepolia mocks (run on a schedule).
 
-### `packages/replay`
-- Starts a Hardhat node forking Base; deploys contracts with `MockAggregator` feeds.
-- Feeds a chosen historical weekend: sets reference round, warps to reopen, pushes open round,
-  calls `settle`. Prints a before/after table (and the Aave HF comparison).
-- `--scan`: no chain needed; finds weekends where gap crosses a band (and calm ones), so the
-  demo is chosen by rule, not cherry-picked by hand.
+### Replay harness (built: `contracts/scripts/lib/replay.ts`, `scripts/replay.ts`)
+- Runs on the in-process Hardhat chain **started at a past date** (`REPLAY_START` →
+  `initialDate`), so each historical weekend runs at its real wall-clock times — nothing shifted.
+- Real contracts and the real keeper; the feed is a `MockAggregator` filled with the **actual
+  mainnet rounds** (R and S, with original `updatedAt`) from `data/weekend-gaps.csv`.
+- **Walk-forward pricing**: each weekend's rate card comes from `quoteBand` (same function as the
+  published rate card) using only earlier weekends.
+- Per weekend: buy one position per band, settle, redeem, reconcile the vault, and compute an
+  **illustrative** lending health factor (Friday → reopen → with protection, estimate).
+- `npm run replay:scan` — demo weekends picked by rule (worst gap; calmest weekend of the same
+  stock). `npm run replay:all` — all 150 weekends in ~10 s. Reports in `replays/*.json`.
+- Not a Base fork: the feed must be a mock anyway, and forking through the public RPC is slow and
+  rate-limited. A fork adds nothing until we read live Aave positions (web app, later).
 
 ### `apps/web` (Next.js + wagmi/viem)
 Pages: **Quote/Buy**, **My positions** (settle button), **Vaults** (deposit/withdraw,

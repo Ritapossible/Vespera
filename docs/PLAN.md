@@ -16,7 +16,7 @@ Thanksgiving closure (US markets closed Thu 11-26, early close Fri 11-27). The f
 | M3 | Backend complete | Invariants, keeper, replay, backtest, agent backend — all tested | Tue 11-24 |
 | M3b | Sepolia live | Deployed, verified, first purchase via script/agent | **Wed 11-25** |
 | M4 | Live weekend | Positions open over Thanksgiving; settled Mon 11-30 | Mon 11-30 |
-| M5 | Replay harness | Fork + mock feed + time warp; scan mode; above/below strike reproducible | Mon 11-30 |
+| M5 | Replay harness | Real rounds + real contracts; scan mode; above/below strike reproducible | ✅ Sat 11-21 |
 | M6 | Agent | Mandate contract + Bankr flow + no-numbers guardrail test | Wed 12-02 |
 | M7 | Web app + evidence | Web app on finished backend, backtest published, edge-case demos | Thu 12-03 |
 | M8 | Submission | Video, README, posts, submit | Thu 12-04 (Fri buffer) |
@@ -44,8 +44,8 @@ purchases go through scripts / the agent / a block explorer. (Decision D16.)
 - [ ] Freeze `SETTLEMENT_RULES.md` v1. Post #2: settlement rules + first dataset findings.
 
 ### Mon 11-23 — backend
-- [ ] `packages/replay`: fork + mock feed fed with real historical rounds, time warp, settle.
-- [ ] Scan mode: pick the big-gap and calm weekends by rule from `data/weekend-gaps.csv`.
+- [x] Replay harness (local chain started in the past, real rounds, real contracts + keeper) — done Sat.
+- [x] Scan mode: picks MSTR 2026-11-13 (−5.37%) and MSTR 2026-08-28 (+0.24%) by rule.
 - [ ] CLI purchase script (`buy.ts`) so testers can buy without a UI.
 
 ### Tue 11-24 — backend

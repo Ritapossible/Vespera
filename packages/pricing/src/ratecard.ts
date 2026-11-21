@@ -54,6 +54,24 @@ export function modelE(u: number, l: number, sigma: number) {
   return acc / N;
 }
 
+export type PricingParams = { load: number; floorBps: number; sigmaFloor: number };
+export const DEFAULT_PARAMS: PricingParams = { load: 2, floorBps: 10, sigmaFloor: 0.01 };
+
+/** Price one band from a sample of weekend gaps. The single source of truth for premiums:
+ *  used by this CLI, the replay harness and the backtest. */
+export function quoteBand(gaps: number[], upperBps: number, lowerBps: number, p: PricingParams = DEFAULT_PARAMS) {
+  const n = gaps.length;
+  const u = upperBps / 1e4, l = lowerBps / 1e4;
+  const mean = n ? gaps.reduce((a, b) => a + b, 0) / n : 0;
+  const sd = n > 1 ? Math.sqrt(gaps.reduce((a, b) => a + (b - mean) ** 2, 0) / n) : 0;
+  const sigma = Math.max(sd, p.sigmaFloor);
+  const eEmp = n ? gaps.reduce((a, x) => a + payoff(x, u, l), 0) / n : 0;
+  const eModel = modelE(u, l, sigma);
+  const hits = gaps.filter((x) => payoff(x, u, l) > 0).length;
+  const premiumBps = Math.ceil(Math.max(p.floorBps, p.load * Math.max(eEmp, eModel) * 1e4));
+  return { upperBps, lowerBps, premiumBps, stats: { n, hits, sampleSd: sd, sigmaUsed: sigma, eEmpBps: eEmp * 1e4, eModelBps: eModel * 1e4 } };
+}
+
 type Row = { ticker: string; gap: number };
 
 function main() {
@@ -69,18 +87,11 @@ function main() {
   console.log("ticker  n  sd%   band        hit%  E_emp_bps  E_model_bps  premium_bps");
   for (const t of tickers) {
     const g = rows.filter((r) => r.ticker === t).map((r) => r.gap);
-    const n = g.length;
-    const mean = g.reduce((a, b) => a + b, 0) / n;
-    const sd = Math.sqrt(g.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
-    const sigma = Math.max(sd, SIGMA_FLOOR);
     const bands = BANDS.map(([ub, lb]) => {
-      const u = ub / 1e4, l = lb / 1e4;
-      const eEmp = g.reduce((a, x) => a + payoff(x, u, l), 0) / n;
-      const eModel = modelE(u, l, sigma);
-      const hits = g.filter((x) => payoff(x, u, l) > 0).length;
-      const premiumBps = Math.ceil(Math.max(FLOOR_BPS, LOAD * Math.max(eEmp, eModel) * 1e4));
-      console.log(`${t.padEnd(6)} ${n} ${(sd * 100).toFixed(2).padStart(5)}  ${ub}/${lb}  ${((hits / n) * 100).toFixed(0).padStart(4)}  ${(eEmp * 1e4).toFixed(1).padStart(9)}  ${(eModel * 1e4).toFixed(1).padStart(11)}  ${String(premiumBps).padStart(11)}`);
-      return { upperBps: ub, lowerBps: lb, premiumBps, stats: { n, hits, sampleSd: sd, sigmaUsed: sigma, eEmpBps: eEmp * 1e4, eModelBps: eModel * 1e4 } };
+      const q = quoteBand(g, ub, lb, { load: LOAD, floorBps: FLOOR_BPS, sigmaFloor: SIGMA_FLOOR });
+      const st = q.stats;
+      console.log(`${t.padEnd(6)} ${st.n} ${(st.sampleSd * 100).toFixed(2).padStart(5)}  ${ub}/${lb}  ${((st.hits / st.n) * 100).toFixed(0).padStart(4)}  ${st.eEmpBps.toFixed(1).padStart(9)}  ${st.eModelBps.toFixed(1).padStart(11)}  ${String(q.premiumBps).padStart(11)}`);
+      return q;
     });
     out.stocks[t] = bands;
   }
